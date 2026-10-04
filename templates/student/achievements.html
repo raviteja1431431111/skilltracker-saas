@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Achievements & Extracurriculars - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-trophy text-warning me-2"></i> Achievements & Competitions</h2>
+        <p class="text-muted mb-0">Record hackathons, coding contests, workshops, paper presentations, and awards.</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addAchievementModal">
+        <i class="fa-solid fa-plus me-1"></i> Log Achievement
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for ach in user.achievements %}
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="fw-bold text-dark mb-0">{{ ach.title }}</h5>
+                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-star me-1"></i> {{ ach.category }}</span>
+                </div>
+                <div class="small text-muted mb-2"><i class="fa-regular fa-calendar me-1"></i> Date: {{ ach.date }}</div>
+                <p class="small text-secondary mb-0">{{ ach.description }}</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center py-5 bg-white rounded-4 border">
+            <i class="fa-solid fa-trophy fs-1 text-muted mb-3"></i>
+            <h5>No Achievements Logged</h5>
+            <p class="text-muted">Log your hackathon wins, competition placements, and workshops to boost your career summary.</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Add Achievement -->
+<div class="modal fade" id="addAchievementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-trophy text-warning me-2"></i> Log Achievement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('student_achievements') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Achievement Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. 1st Place Inter-College Hackathon 2026" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select" required>
+                                <option value="Hackathon" selected>Hackathon</option>
+                                <option value="Coding Contest">Coding Contest</option>
+                                <option value="Paper Presentation">Paper Presentation</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Award">Award</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="date" class="form-control" value="2026-06-15" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description & Highlights</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Describe the outcome or key takeaways..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Save Achievement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

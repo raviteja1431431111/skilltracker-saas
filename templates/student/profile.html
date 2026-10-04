@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Profile - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold mb-0"><i class="fa-solid fa-id-card text-primary me-2"></i> Student Profile Settings</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('student_profile') }}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Full Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">College / Institution</label>
+                            <input type="text" name="college" class="form-control" value="{{ prof.college }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Department / Stream</label>
+                            <input type="text" name="department" class="form-control" value="{{ prof.department }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Academic Year</label>
+                            <input type="text" name="year" class="form-control" value="{{ prof.year }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Career Goal / Target Role</label>
+                            <input type="text" name="career_goal" class="form-control" value="{{ prof.career_goal }}" placeholder="e.g. Full-Stack Software Engineer" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Personal Summary & Biography</label>
+                        <textarea name="bio" class="form-control" rows="3" required>{{ prof.bio }}</textarea>
+                    </div>
+
+                    <h5 class="fw-bold border-top pt-3 mt-4 mb-3">Social & Portfolio Links</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fa-brands fa-github me-1"></i> GitHub URL</label>
+                            <input type="url" name="github_url" class="form-control" value="{{ prof.github_url }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fa-brands fa-linkedin me-1"></i> LinkedIn URL</label>
+                            <input type="url" name="linkedin_url" class="form-control" value="{{ prof.linkedin_url }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fa-solid fa-globe me-1"></i> Portfolio Website</label>
+                            <input type="url" name="portfolio_url" class="form-control" value="{{ prof.portfolio_url }}">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill font-weight-bold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Save Profile Details
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

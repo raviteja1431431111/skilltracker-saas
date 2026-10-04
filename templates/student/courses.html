@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Tracking - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-book-open text-primary me-2"></i> Course Tracking</h2>
+        <p class="text-muted mb-0">Record courses, monitor real progress percentages, and sync external learning platforms.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('student_integrations') }}" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+            <i class="fa-solid fa-plug me-1"></i> Integrations
+        </a>
+        <button class="btn btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+            <i class="fa-solid fa-plus me-1"></i> Add Course
+        </button>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Course Name & Dates</th>
+                        <th>Platform & Source</th>
+                        <th>Progress %</th>
+                        <th>Duration</th>
+                        <th>Skills Gained</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in user.courses %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ c.name }}</div>
+                                <div class="small text-muted">{{ c.start_date }} to {{ c.completion_date }}</div>
+                            </td>
+                            <td>
+                                <div><span class="badge bg-secondary-subtle text-secondary border">{{ c.platform }}</span></div>
+                                {% if c.is_synced %}
+                                    <span class="badge bg-success-subtle text-success border"><i class="fa-solid fa-rotate me-1"></i> Synced ({{ c.sync_source }})</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-pen me-1"></i> Manual</span>
+                                {% endif %}
+                            </td>
+                            <td style="min-width: 140px;">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Actual</span>
+                                    <strong class="text-dark">{{ c.progress_percentage }}%</strong>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar {% if c.progress_percentage == 100 %}bg-success{% else %}bg-primary{% endif %}" role="progressbar" style="width: {{ c.progress_percentage }}%;"></div>
+                                </div>
+                            </td>
+                            <td><span class="small">{{ c.duration }}</span></td>
+                            <td><span class="badge bg-info-subtle text-info-emphasis border">{{ c.skills_gained }}</span></td>
+                            <td>
+                                {% if c.status == 'Completed' %}
+                                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Completed</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ c.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                {% if c.course_url %}
+                                    <a href="{{ c.course_url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No courses logged. Click "Add Course" to record your courses.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Course -->
+<div class="modal fade" id="addCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-book-open text-primary me-2"></i> Add Course Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('student_courses') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Course Title</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Python for Everybody" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Platform</label>
+                            <input type="text" name="platform" class="form-control" placeholder="Coursera / Udemy / edX / NPTEL" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Instructor</label>
+                            <input type="text" name="instructor" class="form-control" placeholder="Dr. Andrew Ng" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Duration</label>
+                            <input type="text" name="duration" class="form-control" placeholder="30 Hours" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Progress %</label>
+                            <input type="number" name="progress_percentage" class="form-control" value="100" min="0" max="100" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Completion Status</label>
+                        <select name="status" class="form-select" required>
+                            <option value="Completed" selected>Completed</option>
+                            <option value="In Progress">In Progress</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Skills Gained (comma separated)</label>
+                        <input type="text" name="skills_gained" class="form-control" placeholder="Python, Data Structures, Flask" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Course URL / Link</label>
+                        <input type="url" name="course_url" class="form-control" placeholder="https://coursera.org/learn/...">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Save Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

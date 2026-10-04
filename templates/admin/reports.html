@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Administrative Reports - SkillTracker SaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-file-csv text-primary me-2"></i> Administrative Reports & Data Export</h2>
+        <p class="text-muted mb-0">Generate and export institutional CSV reports for analytics and auditing.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <div class="mb-3 text-primary"><i class="fa-solid fa-user-graduate fs-1"></i></div>
+            <h5 class="fw-bold text-dark mb-2">Student Development Report</h5>
+            <p class="small text-muted mb-4">Export complete student directory, overall development scores, course progress, project ratings, and quiz performance.</p>
+            <div class="mt-auto">
+                <a href="{{ url_for('admin_download_report', report_type='student-development') }}" class="btn btn-primary rounded-pill w-100 font-weight-bold">
+                    <i class="fa-solid fa-download me-1"></i> Download CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <div class="mb-3 text-info"><i class="fa-solid fa-user-tie fs-1"></i></div>
+            <h5 class="fw-bold text-dark mb-2">Mentor Activity Report</h5>
+            <p class="small text-muted mb-4">Export mentor workload metrics, assigned task completion ratios, review activity, and feedback logs.</p>
+            <div class="mt-auto">
+                <a href="{{ url_for('admin_download_report', report_type='mentor-activity') }}" class="btn btn-outline-primary rounded-pill w-100 font-weight-bold">
+                    <i class="fa-solid fa-download me-1"></i> Download CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <div class="mb-3 text-success"><i class="fa-solid fa-code fs-1"></i></div>
+            <h5 class="fw-bold text-dark mb-2">Skill Adoption Report</h5>
+            <p class="small text-muted mb-4">Export platform skills catalog adoption rates, student enrollment counts, and average proficiency levels.</p>
+            <div class="mt-auto">
+                <a href="{{ url_for('admin_download_report', report_type='skill-adoption') }}" class="btn btn-outline-primary rounded-pill w-100 font-weight-bold">
+                    <i class="fa-solid fa-download me-1"></i> Download CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Database Files
+*.db
+*.sqlite3
+
+# Environment & Secrets
+.env
+.env.local
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / Editor Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+htmlcov/

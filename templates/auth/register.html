@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Skill Development Tracking Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="bg-indigo bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px;">
+                        <i class="fa-solid fa-user-plus fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold">Create Account</h3>
+                    <p class="text-muted small">Register to track your skill development journey</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Rahul Sharma" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="newstudent@college.edu" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Account Role</label>
+                        <select name="role" class="form-select" required>
+                            <option value="student" selected>Student</option>
+                            <option value="mentor">Mentor</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill font-weight-bold shadow-sm mb-3">
+                        <i class="fa-solid fa-check-circle me-2"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted small">Already registered? </span>
+                    <a href="{{ url_for('login') }}" class="small fw-bold text-decoration-none">Sign in here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Tracker - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i> Daily Learning Tracker</h2>
+        <p class="text-muted mb-0">Log daily study time, task progress, notes, and maintain your active learning streak.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+            <i class="fa-solid fa-fire text-danger me-1"></i> {{ streak_data.current_streak }} Day Streak
+        </span>
+    </div>
+</div>
+
+<!-- Streak & Heatmap Summary Header -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #ef4444;">
+            <div class="text-muted small fw-bold">CURRENT STREAK</div>
+            <div class="fs-2 fw-bold text-danger mt-1">🔥 {{ streak_data.current_streak }} <span class="fs-6 text-muted fw-normal">Days</span></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #f59e0b;">
+            <div class="text-muted small fw-bold">LONGEST STREAK</div>
+            <div class="fs-2 fw-bold text-warning mt-1">⚡ {{ streak_data.longest_streak }} <span class="fs-6 text-muted fw-normal">Days</span></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #10b981;">
+            <div class="text-muted small fw-bold">TOTAL ACTIVE DAYS</div>
+            <div class="fs-2 fw-bold text-success mt-1">📅 {{ streak_data.total_active_days }} <span class="fs-6 text-muted fw-normal">Days</span></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #4f46e5;">
+            <div class="text-muted small fw-bold">THIS WEEK LOGS</div>
+            <div class="fs-2 fw-bold text-primary mt-1">7 / 7</div>
+        </div>
+    </div>
+</div>
+
+<!-- GitHub-Style 90-Day Activity Heatmap Grid -->
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="fa-solid fa-chart-simple text-primary me-2"></i> 90-Day Activity Heatmap (Persisted Logs)</h6>
+        <div class="d-flex align-items-center gap-2 small text-muted">
+            <span>Less</span>
+            <span class="heatmap-box level-0"></span>
+            <span class="heatmap-box level-1"></span>
+            <span class="heatmap-box level-2"></span>
+            <span class="heatmap-box level-3"></span>
+            <span class="heatmap-box level-4"></span>
+            <span>More</span>
+        </div>
+    </div>
+
+    <!-- Heatmap Grid Container -->
+    <div class="heatmap-container d-flex flex-wrap gap-1">
+        {% for d_str, info in streak_data.heatmap.items() %}
+            <div class="heatmap-box level-{{ info.intensity }}" title="{{ info.date }}: {{ info.minutes }} mins logged"></div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Daily Progress Log Form -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-pen-to-square text-primary me-2"></i> Log Today's Progress</h5>
+            <form method="POST" action="{{ url_for('student_log_daily_activity') }}">
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ today_str }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Related Task (Optional)</label>
+                    <select name="task_id" class="form-select">
+                        <option value="">General Self-Study / Course Activity</option>
+                        {% for t in tasks %}
+                            <option value="{{ t.id }}">{{ t.title }} (Current: {{ t.progress }}%)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Time Spent (Minutes)</label>
+                        <input type="number" name="time_spent_minutes" class="form-control" value="60" min="15" max="600" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Difficulty Level</label>
+                        <select name="difficulty_level" class="form-select" required>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Progress % Start</label>
+                        <input type="number" name="progress_pct_start" class="form-control" value="0" min="0" max="100" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Progress % End</label>
+                        <input type="number" name="progress_pct_end" class="form-control" value="50" min="0" max="100" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Activity Notes & What Was Completed</label>
+                    <textarea name="activity_notes" class="form-control" rows="3" placeholder="e.g. Completed Flask authentication endpoints and tested POST request." required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">What Remains / Next Steps (Optional)</label>
+                    <textarea name="remaining_notes" class="form-control" rows="2" placeholder="e.g. Implement refresh token rotation..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm">
+                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Daily Entry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Activity Log Stream -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-clock-rotate-left text-secondary me-2"></i> Activity Log History</h5>
+            <div class="activity-timeline">
+                {% for log in recent_logs %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-dark small">{{ log.date }}</strong>
+                            <span class="badge bg-primary-subtle text-primary border">{{ log.time_spent_minutes }} mins</span>
+                        </div>
+                        <p class="small text-secondary mb-1">"{{ log.activity_notes }}"</p>
+                        <div class="small text-muted">
+                            Progress: {{ log.progress_pct_start }}% &rarr; {{ log.progress_pct_end }}% | Difficulty: {{ log.difficulty_level }}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted small">No daily activity logged yet. Log your study hours above!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

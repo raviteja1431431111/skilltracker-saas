@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Audit Log - Administration{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> System Audit Log</h2>
+        <p class="text-muted mb-0">Immutable record of administrative actions and platform audit events.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Timestamp</th>
+                        <th>Action</th>
+                        <th>User / Actor</th>
+                        <th>Target Resource</th>
+                        <th class="pe-4 text-end">Result Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                        <tr>
+                            <td class="ps-4 font-monospace small text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td class="fw-bold text-dark">{{ log.action }}</td>
+                            <td>
+                                {% if log.actor %}
+                                    <span class="small">{{ log.actor.name }} ({{ log.actor.role|upper }})</span>
+                                {% else %}
+                                    <span class="small text-muted">System</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="small text-secondary">{{ log.target_resource }}</span></td>
+                            <td class="pe-4 text-end">
+                                <span class="badge bg-success-subtle text-success border">{{ log.result }}</span>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No audit events recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

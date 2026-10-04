@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}User Directory - Administration{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-users text-primary me-2"></i> User Directory</h2>
+        <p class="text-muted mb-0">Manage student, mentor, and administrator accounts across the platform.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="fa-solid fa-user-plus me-1"></i> Add Student
+        </button>
+        <button class="btn btn-primary rounded-pill px-3 shadow-sm font-weight-bold" data-bs-toggle="modal" data-bs-target="#addMentorModal">
+            <i class="fa-solid fa-user-tie me-1"></i> Create Mentor Account
+        </button>
+    </div>
+</div>
+
+<!-- Search & Filter Controls Card -->
+<div class="card border-0 shadow-sm p-3 mb-4">
+    <form method="GET" action="{{ url_for('admin_user_directory') }}" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="search" class="form-control" placeholder="Search by name, email, student ID..." value="{{ search_query }}">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <select name="role" class="form-select" onchange="this.form.submit()">
+                <option value="all" {% if selected_role == 'all' %}selected{% endif %}>All Roles</option>
+                <option value="student" {% if selected_role == 'student' %}selected{% endif %}>Students</option>
+                <option value="mentor" {% if selected_role == 'mentor' %}selected{% endif %}>Mentors</option>
+                <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admins</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All Statuses</option>
+                <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sort" class="form-select" onchange="this.form.submit()">
+                <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>Sort by Name</option>
+                <option value="recently_joined" {% if selected_sort == 'recently_joined' %}selected{% endif %}>Recently Joined</option>
+                <option value="last_active" {% if selected_sort == 'last_active' %}selected{% endif %}>Last Active</option>
+                <option value="role" {% if selected_sort == 'role' %}selected{% endif %}>Sort by Role</option>
+            </select>
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="submit" class="btn btn-dark rounded-pill w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Responsive User Directory Table & Card Grid -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Account Status</th>
+                        <th>Joined</th>
+                        <th class="pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ u.name }}</div>
+                                <div class="small text-muted">{{ u.student_code or u.employee_code or 'ID: ' ~ u.id }}</div>
+                            </td>
+                            <td><span class="small">{{ u.email }}</span></td>
+                            <td>
+                                {% if u.role == 'student' %}
+                                    <span class="badge bg-primary text-uppercase">Student</span>
+                                {% elif u.role == 'mentor' %}
+                                    <span class="badge bg-info text-dark text-uppercase">Mentor</span>
+                                {% else %}
+                                    <span class="badge bg-dark text-uppercase">Admin</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="small text-muted">{{ u.profile.department if u.profile else 'N/A' }}</span></td>
+                            <td>
+                                {% if u.is_active %}
+                                    <span class="badge bg-success-subtle text-success border">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="small text-muted">{{ u.created_at.strftime('%Y-%m-%d') }}</span></td>
+                            <td class="pe-4 text-end">
+                                <a href="{{ url_for('admin_view_user', user_id=u.id) }}" class="btn btn-sm btn-outline-primary rounded-pill me-1">
+                                    <i class="fa-solid fa-eye me-1"></i> View
+                                </a>
+                                {% if u.id != session.get('user_id') %}
+                                    <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Change account status for {{ u.name }}?');">
+                                        {% if u.is_active %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill"><i class="fa-solid fa-user-slash"></i> Deactivate</button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-outline-success btn-sm rounded-pill"><i class="fa-solid fa-user-check"></i> Reactivate</button>
+                                        {% endif %}
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No user accounts found matching query.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Touch-Friendly Mobile Card Layout -->
+        <div class="d-md-none p-3">
+            {% for u in users %}
+                <div class="card p-3 mb-3 border">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-dark mb-0">{{ u.name }}</h6>
+                        <span class="badge bg-primary text-uppercase">{{ u.role }}</span>
+                    </div>
+                    <div class="small text-muted mb-2">{{ u.email }}</div>
+                    <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                        <span class="badge {% if u.is_active %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} border">{{ u.status }}</span>
+                        <a href="{{ url_for('admin_view_user', user_id=u.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">View Profile</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Student -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-plus text-primary me-2"></i> Add Student Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin_add_student') }}">
+                <div class="modal-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="student@college.edu" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Student Code / ID</label>
+                            <input type="text" name="student_code" class="form-control" placeholder="STU-2026-001" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Department</label>
+                            <input type="text" name="department" class="form-control" value="Computer Science & Engineering" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Year of Study</label>
+                            <input type="text" name="year" class="form-control" value="1st Year B.Tech" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Career Goal</label>
+                            <input type="text" name="career_goal" class="form-control" value="Software Engineer" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Create Student Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create Mentor Account -->
+<div class="modal fade" id="addMentorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-tie text-primary me-2"></i> Create Mentor Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin_add_mentor') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Prof. Ananya Roy" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="mentor@college.edu" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Employee Code</label>
+                            <input type="text" name="employee_code" class="form-control" placeholder="EMP-MNT-101" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Department</label>
+                        <input type="text" name="department" class="form-control" value="Computer Science & Engineering" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Create Mentor Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

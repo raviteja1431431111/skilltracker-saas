@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Platform Configuration - Administration{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-primary me-2"></i> Platform Configuration & Settings</h2>
+        <p class="text-muted mb-0">System configuration, integration API keys, and notification triggers.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-server text-primary me-2"></i> Platform Health Status</h5>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="p-3 border rounded-3 bg-light text-center">
+                <span class="small text-muted text-uppercase fw-bold">DATABASE</span>
+                <div class="fw-bold text-success mt-1"><i class="fa-solid fa-circle-check me-1"></i> Operational</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 border rounded-3 bg-light text-center">
+                <span class="small text-muted text-uppercase fw-bold">AUTHENTICATION</span>
+                <div class="fw-bold text-success mt-1"><i class="fa-solid fa-circle-check me-1"></i> Operational</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 border rounded-3 bg-light text-center">
+                <span class="small text-muted text-uppercase fw-bold">INTEGRATIONS</span>
+                <div class="fw-bold text-warning text-dark mt-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> Fallback Mode</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 border rounded-3 bg-light text-center">
+                <span class="small text-muted text-uppercase fw-bold">NOTIFICATIONS</span>
+                <div class="fw-bold text-success mt-1"><i class="fa-solid fa-circle-check me-1"></i> Operational</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-gear text-secondary me-2"></i> System Configuration Keys</h5>
+    <div class="small text-muted mb-3">Environment variables configuration state:</div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>COURSERA_CLIENT_ID</span>
+            <span class="badge bg-secondary">Unconfigured (Fallback Active)</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>EDX_CLIENT_ID</span>
+            <span class="badge bg-secondary">Unconfigured (Fallback Active)</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>UDEMY_CLIENT_ID</span>
+            <span class="badge bg-secondary">Unconfigured (Fallback Active)</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Administration Control Center - SkillTracker SaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-primary me-2"></i> Administration</h2>
+        <p class="text-muted mb-0">Manage users, learning resources, platform activity, and system configuration.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('admin_user_directory') }}" class="btn btn-outline-primary rounded-pill px-3 shadow-sm">
+            <i class="fa-solid fa-users me-1"></i> User Directory
+        </a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-primary rounded-pill px-3 shadow-sm font-weight-bold">
+            <i class="fa-solid fa-file-csv me-1"></i> View Reports
+        </a>
+    </div>
+</div>
+
+<!-- KPI Summary Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #2563eb;">
+            <div class="text-muted small fw-bold text-uppercase">ACTIVE STUDENTS</div>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ students|length }}</div>
+            <div class="small text-muted"><i class="fa-solid fa-user me-1"></i> Current total</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #3b82f6;">
+            <div class="text-muted small fw-bold text-uppercase">ACTIVE MENTORS</div>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ mentors|length }}</div>
+            <div class="small text-muted"><i class="fa-solid fa-user-tie me-1"></i> Current total</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #16a34a;">
+            <div class="text-muted small fw-bold text-uppercase">AVG DEV SCORE</div>
+            <div class="fs-2 fw-bold text-success mt-1">{{ avg_score }}%</div>
+            <div class="small text-success"><i class="fa-solid fa-chart-line me-1"></i> Platform Avg</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #d97706;">
+            <div class="text-muted small fw-bold text-uppercase">SKILLS IN CATALOG</div>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ skills|length }}</div>
+            <div class="small text-muted"><i class="fa-solid fa-code me-1"></i> Catalog items</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #6366f1;">
+            <div class="text-muted small fw-bold text-uppercase">ACTIVE PLANS</div>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ students|length }}</div>
+            <div class="small text-muted"><i class="fa-solid fa-bullseye me-1"></i> Learning plans</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 stat-card" style="border-left-color: #0f172a;">
+            <div class="text-muted small fw-bold text-uppercase">PLATFORM ACTIVITY</div>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ audit_logs|length }}</div>
+            <div class="small text-muted"><i class="fa-solid fa-clock-rotate-left me-1"></i> Events logged</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Quick Administrative Actions</h6>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('admin_user_directory', role='student') }}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="fa-solid fa-user-plus me-1"></i> Add Student
+        </a>
+        <a href="{{ url_for('admin_user_directory', role='mentor') }}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="fa-solid fa-user-tie me-1"></i> Create Mentor Account
+        </a>
+        <a href="{{ url_for('admin_skills') }}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="fa-solid fa-plus-circle me-1"></i> Create Skill
+        </a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-dark rounded-pill px-3">
+            <i class="fa-solid fa-file-csv me-1"></i> Export Reports
+        </a>
+    </div>
+</div>
+
+<!-- Audit Log Stream -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 fw-bold py-3 d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Recent Platform Activity Audit Log</span>
+        <a href="{{ url_for('admin_audit_log') }}" class="btn btn-sm btn-link text-decoration-none">View All Audit Logs</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Action</th>
+                        <th>User / Actor</th>
+                        <th>Target Resource</th>
+                        <th>Result</th>
+                        <th class="pe-4 text-end">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in audit_logs %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">{{ log.action }}</td>
+                            <td>
+                                {% if log.actor %}
+                                    <span class="small">{{ log.actor.name }} ({{ log.actor.role|upper }})</span>
+                                {% else %}
+                                    <span class="small text-muted">System</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="small text-secondary">{{ log.target_resource }}</span></td>
+                            <td><span class="badge bg-success-subtle text-success border">{{ log.result }}</span></td>
+                            <td class="pe-4 text-end"><span class="small text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</span></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No platform activity logged yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

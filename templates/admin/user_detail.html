@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile - {{ target.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-circle-user text-primary me-2"></i> User Profile: {{ target.name }}</h2>
+        <p class="text-muted mb-0">Role: <strong class="text-uppercase">{{ target.role }}</strong> | Status: <span class="badge {% if target.is_active %}bg-success{% else %}bg-danger{% endif %}">{{ target.status }}</span></p>
+    </div>
+    <a href="{{ url_for('admin_user_directory') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to User Directory
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <div class="bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3 mx-auto" style="width: 72px; height: 72px;">
+                <i class="fa-solid fa-user fs-2"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-1">{{ target.name }}</h4>
+            <p class="text-muted small mb-3">{{ target.email }}</p>
+
+            <div class="small text-muted text-start border-top pt-3">
+                <div><strong>Role:</strong> {{ target.role|upper }}</div>
+                <div><strong>Code/ID:</strong> {{ target.student_code or target.employee_code or 'ID: ' ~ target.id }}</div>
+                <div><strong>Joined Date:</strong> {{ target.created_at.strftime('%Y-%m-%d') }}</div>
+                <div><strong>Last Active:</strong> {{ target.last_active_at.strftime('%Y-%m-%d %H:%M') if target.last_active_at else 'N/A' }}</div>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=target.id) }}" class="mt-4" onsubmit="return confirm('Change account status?');">
+                {% if target.is_active %}
+                    <button type="submit" class="btn btn-outline-danger rounded-pill w-100"><i class="fa-solid fa-user-slash me-1"></i> Deactivate User</button>
+                {% else %}
+                    <button type="submit" class="btn btn-success rounded-pill w-100"><i class="fa-solid fa-user-check me-1"></i> Reactivate User</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if target.role == 'student' %}
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Academic & Skill Overview</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="small text-muted">Overall Development Score</span>
+                            <div class="fs-2 fw-bold text-primary">{{ score_data.overall }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="small text-muted">Target Career Goal</span>
+                            <div class="fs-5 fw-bold text-dark">{{ target.profile.career_goal }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Tracked Skills:</h6>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for ss in target.skills %}
+                        <span class="badge bg-primary-subtle text-primary border">{{ ss.skill.name }} ({{ ss.level }})</span>
+                    {% else %}
+                        <span class="small text-muted">No skills logged.</span>
+                    {% endfor %}
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Enrolled Courses:</h6>
+                <ul class="list-unstyled small mb-0">
+                    {% for c in target.courses %}
+                        <li class="mb-1"><i class="fa-solid fa-book-open me-2 text-primary"></i> <strong>{{ c.name }}</strong> ({{ c.progress_percentage }}%)</li>
+                    {% else %}
+                        <li class="text-muted">No courses logged.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% elif target.role == 'mentor' %}
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Mentor Workload & Evaluation Summary</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="small text-muted">Tasks Created</span>
+                            <div class="fs-2 fw-bold text-primary">{{ target.tasks_created|length }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="small text-muted">Evaluations Submitted</span>
+                            <div class="fs-2 fw-bold text-success">{{ target.feedbacks_given|length }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Audit History -->
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3">User Action Audit Logs</h5>
+            <ul class="list-unstyled small mb-0">
+                {% for log in audit_history %}
+                    <li class="border-bottom py-2">
+                        <strong class="text-dark">{{ log.action }}</strong> - {{ log.target_resource }}
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </li>
+                {% else %}
+                    <li class="text-muted">No audit events logged for this user.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

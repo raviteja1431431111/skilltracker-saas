@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificates - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-certificate text-warning me-2"></i> Certificate Management</h2>
+        <p class="text-muted mb-0">Store verified certifications, credential IDs, and issuer details (Contributes 10% to overall score).</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCertModal">
+        <i class="fa-solid fa-plus me-1"></i> Add Certificate
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for ct in user.certificates %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm p-3 h-100 position-relative">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning-subtle text-warning p-3 rounded-circle me-3">
+                        <i class="fa-solid fa-award fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark">{{ ct.name }}</h6>
+                        <span class="small text-muted">{{ ct.issuing_organization }}</span>
+                    </div>
+                </div>
+
+                <div class="small text-muted mb-3">
+                    <div><strong>Issue Date:</strong> {{ ct.issue_date }}</div>
+                    <div><strong>Credential ID:</strong> <code>{{ ct.certificate_id }}</code></div>
+                    <div><strong>Skill Category:</strong> <span class="badge bg-light text-dark border">{{ ct.skill_category }}</span></div>
+                </div>
+
+                {% if ct.verification_url %}
+                    <div class="mt-auto pt-2">
+                        <a href="{{ ct.verification_url }}" target="_blank" class="btn btn-outline-warning text-dark btn-sm rounded-pill w-100">
+                            <i class="fa-solid fa-shield-halved me-1"></i> Verify Credential
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center py-5 bg-white rounded-4 border">
+            <i class="fa-solid fa-certificate fs-1 text-muted mb-3"></i>
+            <h5>No Certificates Registered</h5>
+            <p class="text-muted">Add course & skill certification records to showcase verified learning credentials.</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Add Certificate -->
+<div class="modal fade" id="addCertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-award text-warning me-2"></i> Register Certificate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('student_certificates') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Certificate Title</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Python for Everybody Certificate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Issuing Organization / Institute</label>
+                        <input type="text" name="issuing_organization" class="form-control" placeholder="Coursera / Google / AWS" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Issue Date</label>
+                            <input type="date" name="issue_date" class="form-control" value="2026-05-01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Credential ID</label>
+                            <input type="text" name="certificate_id" class="form-control" placeholder="CERT-98213" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Skill Category</label>
+                        <input type="text" name="skill_category" class="form-control" placeholder="Web Development / AI" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Verification URL</label>
+                        <input type="url" name="verification_url" class="form-control" placeholder="https://coursera.org/verify/...">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Save Certificate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Digital Skill Summary Report - {{ user.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-file-invoice text-info me-2"></i> Digital Skill Summary Report</h2>
+        <p class="text-muted mb-0">Verified student skill resume and academic development summary.</p>
+    </div>
+    <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 shadow-sm">
+        <i class="fa-solid fa-print me-2"></i> Print / Save as PDF
+    </button>
+</div>
+
+<!-- Report Printable Document Container -->
+<div class="card border shadow-sm p-4 p-md-5 bg-white">
+    <!-- Report Header -->
+    <div class="row border-bottom pb-4 mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-dark mb-1">{{ user.name }}</h2>
+            <div class="text-primary fw-bold mb-2"><i class="fa-solid fa-bullseye me-1"></i> Target Career: {{ user.profile.career_goal }}</div>
+            <div class="small text-muted">
+                <div><strong>Institution:</strong> {{ user.profile.college }}</div>
+                <div><strong>Department:</strong> {{ user.profile.department }} | {{ user.profile.year }}</div>
+                <div><strong>Email:</strong> {{ user.email }}</div>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <div class="p-3 bg-light rounded-3 text-center border">
+                <div class="small text-muted text-uppercase fw-bold">Verified Overall Score</div>
+                <div class="fs-1 fw-bold text-primary">{{ score_data.overall }}%</div>
+                <div class="badge bg-success text-uppercase">Level: Advanced</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary / Bio -->
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-2">Executive Summary</h5>
+        <p class="text-secondary small mb-0">{{ user.profile.bio }}</p>
+    </div>
+
+    <!-- Verified Skills Grid -->
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Technical & Soft Skills Portfolio</h5>
+        <div class="row g-2">
+            {% for ss in user.skills %}
+                <div class="col-md-4 col-6">
+                    <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                        <span class="fw-bold small">{{ ss.skill.name }}</span>
+                        <span class="badge bg-primary">{{ ss.level }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Verified Projects -->
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Featured Technical Projects</h5>
+        {% for p in user.projects %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between">
+                    <strong class="text-dark">{{ p.name }}</strong>
+                    <span class="small text-muted">{{ p.duration }}</span>
+                </div>
+                <p class="small text-secondary mb-1">{{ p.description }}</p>
+                <div class="small"><strong>Tech Stack:</strong> <code>{{ p.technologies }}</code></div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Completed Courses & Certifications -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Completed Courses</h5>
+            <ul class="list-unstyled small">
+                {% for c in user.courses if c.status == 'Completed' %}
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> <strong>{{ c.name }}</strong> ({{ c.platform }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Certificates</h5>
+            <ul class="list-unstyled small">
+                {% for ct in user.certificates %}
+                    <li class="mb-2"><i class="fa-solid fa-award text-warning me-2"></i> <strong>{{ ct.name }}</strong> - {{ ct.issuing_organization }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Mentor Feedback Summary -->
+    {% if user.feedbacks_received %}
+        <div class="mb-3">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-2">Mentor Evaluation</h5>
+            {% for fb in user.feedbacks_received %}
+                <div class="p-3 bg-light rounded border mb-2">
+                    <div class="small fw-bold">{{ fb.mentor.name }} (Rating: {{ fb.rating }}/5.0 Stars)</div>
+                    <p class="small text-muted mb-0">"{{ fb.comments }}"</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Report Footer -->
+    <div class="border-top pt-3 mt-4 text-center text-muted small">
+        Report generated by Skill Development Tracking Platform System on {{ current_user.created_at.strftime('%Y-%m-%d') if current_user else '2026-10-04' }}. Verified Digital Record.
+    </div>
+</div>
+{% endblock %}

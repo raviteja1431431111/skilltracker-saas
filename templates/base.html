@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillTracker SaaS{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-graduation-cap text-primary fs-4 me-2"></i>
+                <span class="fw-bold tracking-tight">SkillTracker <span class="badge bg-primary text-uppercase fs-6 font-monospace ms-1">SaaS</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if session.get('user_id') %}
+                        {% if unread_notifications_count > 0 %}
+                            <li class="nav-item me-3">
+                                <span class="badge bg-danger rounded-pill px-2 py-1"><i class="fa-solid fa-bell me-1"></i> {{ unread_notifications_count }} Unread</span>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item me-3">
+                            <span class="nav-link text-light mb-0">
+                                <i class="fa-solid fa-circle-user me-1 text-primary"></i> {{ session.get('user_name') }}
+                                <span class="badge bg-secondary text-uppercase ms-1">{{ session.get('user_role') }}</span>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="{{ url_for('logout') }}">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item me-2">
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm rounded-pill px-3" href="{{ url_for('register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            {% if session.get('user_id') %}
+                <!-- Sidebar Menu -->
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse px-0 py-3 no-print">
+                    <div class="position-sticky">
+                        <ul class="nav flex-column">
+                            {% if session.get('user_role') == 'student' %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}">
+                                        <i class="fa-solid fa-gauge me-2"></i> Overview
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_skills' %}active{% endif %}" href="{{ url_for('student_skills') }}">
+                                        <i class="fa-solid fa-code me-2"></i> My Skills
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_courses' %}active{% endif %}" href="{{ url_for('student_courses') }}">
+                                        <i class="fa-solid fa-book-open me-2"></i> Learning
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_tasks' %}active{% endif %}" href="{{ url_for('student_tasks') }}">
+                                        <i class="fa-solid fa-list-check me-2"></i> Tasks
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_daily_tracker' %}active{% endif %}" href="{{ url_for('student_daily_tracker') }}">
+                                        <i class="fa-solid fa-calendar-check me-2"></i> Daily Tracker
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_goals' %}active{% endif %}" href="{{ url_for('student_goals') }}">
+                                        <i class="fa-solid fa-bullseye me-2"></i> Goals
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_projects' %}active{% endif %}" href="{{ url_for('student_projects') }}">
+                                        <i class="fa-solid fa-diagram-project me-2"></i> Projects
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'student_certificates' %}active{% endif %}" href="{{ url_for('student_certificates') }}">
+                                        <i class="fa-solid fa-certificate me-2"></i> Certificates
+                                    </a>
+                                </li>
+                                <li class="nav-item mt-3 pt-3 border-top border-secondary">
+                                    <a class="nav-link text-warning {% if request.endpoint == 'student_score_breakdown' %}active{% endif %}" href="{{ url_for('student_score_breakdown') }}">
+                                        <i class="fa-solid fa-calculator me-2"></i> Score Transparency
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-info {% if request.endpoint == 'student_report' %}active{% endif %}" href="{{ url_for('student_report') }}">
+                                        <i class="fa-solid fa-file-invoice me-2"></i> Digital Summary
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light {% if request.endpoint == 'student_integrations' %}active{% endif %}" href="{{ url_for('student_integrations') }}">
+                                        <i class="fa-solid fa-plug me-2"></i> Integrations
+                                    </a>
+                                </li>
+                            {% elif session.get('user_role') == 'mentor' %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'mentor_dashboard' %}active{% endif %}" href="{{ url_for('mentor_dashboard') }}">
+                                        <i class="fa-solid fa-gauge me-2"></i> Overview
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('mentor_dashboard') }}#students">
+                                        <i class="fa-solid fa-users me-2"></i> My Students
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('mentor_dashboard') }}#tasks">
+                                        <i class="fa-solid fa-list-check me-2"></i> Tasks
+                                    </a>
+                                </li>
+                            {% elif session.get('user_role') == 'admin' %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+                                        <i class="fa-solid fa-gauge me-2"></i> Overview
+                                    </a>
+                                </li>
+                                <li class="sidebar-header text-uppercase px-3 pt-3 text-muted small font-weight-bold">People</li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_user_directory' and selected_role == 'student' %}active{% endif %}" href="{{ url_for('admin_user_directory', role='student') }}">
+                                        <i class="fa-solid fa-user-graduate me-2"></i> Students
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_user_directory' and selected_role == 'mentor' %}active{% endif %}" href="{{ url_for('admin_user_directory', role='mentor') }}">
+                                        <i class="fa-solid fa-user-tie me-2"></i> Mentors
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_user_directory' and selected_role == 'admin' %}active{% endif %}" href="{{ url_for('admin_user_directory', role='admin') }}">
+                                        <i class="fa-solid fa-user-shield me-2"></i> Administrators
+                                    </a>
+                                </li>
+                                <li class="sidebar-header text-uppercase px-3 pt-3 text-muted small font-weight-bold">Learning</li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_skills' %}active{% endif %}" href="{{ url_for('admin_skills') }}">
+                                        <i class="fa-solid fa-code me-2"></i> Skills
+                                    </a>
+                                </li>
+                                <li class="sidebar-header text-uppercase px-3 pt-3 text-muted small font-weight-bold">Monitoring</li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_audit_log' %}active{% endif %}" href="{{ url_for('admin_audit_log') }}">
+                                        <i class="fa-solid fa-clock-rotate-left me-2"></i> Audit Log
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_reports' %}active{% endif %}" href="{{ url_for('admin_reports') }}">
+                                        <i class="fa-solid fa-file-csv me-2"></i> Reports
+                                    </a>
+                                </li>
+                                <li class="sidebar-header text-uppercase px-3 pt-3 text-muted small font-weight-bold">Configuration</li>
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'admin_settings' %}active{% endif %}" href="{{ url_for('admin_settings') }}">
+                                        <i class="fa-solid fa-gear me-2"></i> Platform Settings
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main class="col-md-{% if session.get('user_id') %}9{% else %}12{% endif %} ms-sm-auto col-lg-{% if session.get('user_id') %}10{% else %}12{% endif %} px-md-4 py-4 main-content">
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

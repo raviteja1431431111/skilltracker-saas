@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Skill Development Tracking Platform - College Prototype{% endblock %}
+
+{% block content %}
+<div class="row align-items-center justify-content-center min-vh-75 py-5">
+    <div class="col-lg-8 text-center">
+        <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill mb-3">
+            <i class="fa-solid fa-graduation-cap me-1"></i> College Prototype / Web Application
+        </div>
+        <h1 class="display-4 fw-bold text-dark mb-3">One Platform to Track, Develop & Showcase Every Student Skill</h1>
+        <p class="lead text-secondary mb-4">
+            Systematically build technical & soft skills, document projects, track course certifications, earn gamified achievements, and get mentor evaluations all in one place.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
+                <i class="fa-solid fa-right-to-bracket me-2"></i> Log In to Portal
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-dark btn-lg px-4 rounded-pill">
+                <i class="fa-solid fa-user-plus me-2"></i> Create Student Account
+            </a>
+        </div>
+
+        <div class="row g-4 text-start">
+            <div class="col-md-4">
+                <div class="card h-100 p-3">
+                    <div class="card-body">
+                        <i class="fa-solid fa-chart-pie text-primary fs-3 mb-3"></i>
+                        <h5 class="card-title fw-bold">Overall Skill Score</h5>
+                        <p class="card-text text-muted small">Weighted engine combining Courses (25%), Projects (30%), Assessments (20%), Certifications (10%) and Mentor Rating (15%).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-3">
+                    <div class="card-body">
+                        <i class="fa-solid fa-user-graduate text-info fs-3 mb-3"></i>
+                        <h5 class="card-title fw-bold">Multi-Role Portals</h5>
+                        <p class="card-text text-muted small">Dedicated dashboards for Students (skill tracking), Mentors (reviews & evaluations), and Admins (system analytics).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-3">
+                    <div class="card-body">
+                        <i class="fa-solid fa-file-pdf text-success fs-3 mb-3"></i>
+                        <h5 class="card-title fw-bold">Digital Skill Summary</h5>
+                        <p class="card-text text-muted small">Generate exportable skill reports and resume-ready summaries of verified achievements and projects.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

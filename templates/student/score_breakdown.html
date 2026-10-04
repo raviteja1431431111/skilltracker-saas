@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Score Transparency - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-calculator text-primary me-2"></i> Score Calculation Transparency</h2>
+        <p class="text-muted mb-0">Full mathematical breakdown of your Overall Skill Score derived strictly from stored database entities.</p>
+    </div>
+</div>
+
+<!-- Main Score Banner -->
+<div class="card border-0 shadow-sm p-4 text-center mb-4 bg-primary text-white rounded-4">
+    <div class="small text-uppercase fw-bold text-white-50">VERIFIED OVERALL SKILL SCORE</div>
+    <div class="display-3 fw-bold my-2">{{ breakdown.overall }}%</div>
+    <div class="small text-white-50">
+        Formula: 25% Courses + 30% Projects + 20% Assessments + 10% Certificates + 15% Mentor Score
+    </div>
+</div>
+
+<!-- Dimension Table -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 fw-bold py-3">
+        <i class="fa-solid fa-table me-2 text-primary"></i> Dimension Contribution Matrix
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Dimension</th>
+                        <th>Weight</th>
+                        <th>Raw Performance Score</th>
+                        <th>Weighted Contribution</th>
+                        <th class="pe-4">Calculation Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dim in breakdown.dimensions %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">{{ dim.name }}</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary border">{{ dim.weight }}</span></td>
+                            <td><span class="fs-6 fw-bold text-dark">{{ dim.raw_score }}%</span></td>
+                            <td><span class="fs-6 fw-bold text-primary">+ {{ dim.contribution }}%</span></td>
+                            <td class="pe-4"><span class="small text-muted">{{ dim.detail }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="p-4 bg-light rounded-4 border">
+    <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-shield-halved text-success me-1"></i> Data Integrity Guarantee</h6>
+    <p class="small text-muted mb-0">
+        SkillTracker does not generate static or random scores. Every percentage is dynamically calculated from your active course progress, evaluated project submissions, quiz test results, verified certificate records, and mentor ratings.
+    </p>
+</div>
+{% endblock %}

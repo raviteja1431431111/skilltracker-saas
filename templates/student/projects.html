@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects Portfolio - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-diagram-project text-primary me-2"></i> Projects Portfolio</h2>
+        <p class="text-muted mb-0">Document hands-on projects, technologies used, GitHub links, and mentor reviews (Contributes 30% to overall score).</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+        <i class="fa-solid fa-plus me-1"></i> Document Project
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for p in user.projects %}
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="fw-bold text-dark mb-0">{{ p.name }}</h5>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">{{ p.status }}</span>
+                </div>
+
+                <p class="text-secondary small mb-3">{{ p.description }}</p>
+
+                <div class="mb-2">
+                    <strong class="small text-dark">Tech Stack:</strong>
+                    <div class="mt-1">
+                        {% for tech in p.technologies.split(',') %}
+                            <span class="badge bg-light text-dark border me-1 mb-1">{{ tech.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong class="small text-dark">Skills Applied:</strong>
+                    <span class="small text-muted ms-1">{{ p.skills_applied }}</span>
+                </div>
+
+                <!-- Mentor Evaluation Badge on Card -->
+                {% if p.mentor_rating > 0 %}
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-dark"><i class="fa-solid fa-user-check text-success me-1"></i> Mentor Evaluation</span>
+                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-star me-1"></i> {{ p.mentor_rating }}/5.0</span>
+                        </div>
+                        <p class="small text-muted mb-0">"{{ p.mentor_feedback }}"</p>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex gap-2 mt-auto pt-3 border-top">
+                    {% if p.github_link %}
+                        <a href="{{ p.github_link }}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                            <i class="fa-brands fa-github me-1"></i> Repository
+                        </a>
+                    {% endif %}
+                    {% if p.demo_link %}
+                        <a href="{{ p.demo_link }}" target="_blank" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Live Demo
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center py-5 bg-white rounded-4 border">
+            <i class="fa-solid fa-diagram-project fs-1 text-muted mb-3"></i>
+            <h5>No Projects Documented</h5>
+            <p class="text-muted">Document your projects with GitHub links and tech stacks to build a strong digital portfolio!</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Document Project -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code text-primary me-2"></i> Document New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('student_projects') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Project Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Smart Campus Event Reservation System" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description & Problem Solved</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Briefly describe what your project does..." required></textarea>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Technologies Used</label>
+                            <input type="text" name="technologies" class="form-control" placeholder="Python, Flask, SQLite, Bootstrap 5" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Skills Applied</label>
+                            <input type="text" name="skills_applied" class="form-control" placeholder="Web Development, Database Design" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Duration</label>
+                            <input type="text" name="duration" class="form-control" placeholder="4 Weeks" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="Completed" selected>Completed</option>
+                                <option value="In Progress">In Progress</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">GitHub Repository Link</label>
+                            <input type="url" name="github_link" class="form-control" placeholder="https://github.com/user/repo">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Live Demo / Deployment Link</label>
+                            <input type="url" name="demo_link" class="form-control" placeholder="https://project-demo.com">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

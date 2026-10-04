@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Good Morning, {{ user.name }} 👋</h2>
+        <p class="text-muted mb-0">
+            {{ user.profile.department }} | {{ user.profile.year }} | Target: <strong>{{ user.profile.career_goal }}</strong>
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+            <i class="fa-solid fa-fire me-1"></i> {{ streak_data.current_streak }} Day Streak
+        </span>
+        <a href="{{ url_for('student_score_breakdown') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            <i class="fa-solid fa-calculator me-1"></i> Score Transparency
+        </a>
+    </div>
+</div>
+
+<!-- Top Stats Grid -->
+<div class="row g-3 mb-4">
+    <!-- Score Gauge -->
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-3 text-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted text-uppercase fw-bold small">Overall Score</span>
+                <a href="{{ url_for('student_score_breakdown') }}" class="small text-decoration-none fw-bold">Formula <i class="fa-solid fa-chevron-right"></i></a>
+            </div>
+            <div class="score-circle mb-3" style="--score-pct: {{ score_data.overall }};">
+                <div class="score-circle-inner">
+                    <span class="score-number">{{ score_data.overall }}%</span>
+                    <span class="score-label">VERIFIED</span>
+                </div>
+            </div>
+            <div class="small text-muted">
+                Courses 25% + Projects 30% + Assessments 20% + Certs 10% + Mentor 15%
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Metrics -->
+    <div class="col-md-8">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3 stat-card" style="border-left-color: #4f46e5;">
+                    <div class="text-muted small fw-bold">COURSES</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ user.courses|length }}</div>
+                    <div class="small text-success"><i class="fa-solid fa-check me-1"></i> {{ score_data.courses }}% Score</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3 stat-card" style="border-left-color: #0ea5e9;">
+                    <div class="text-muted small fw-bold">PROJECTS</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ user.projects|length }}</div>
+                    <div class="small text-info"><i class="fa-solid fa-laptop-code me-1"></i> {{ score_data.projects }}% Score</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3 stat-card" style="border-left-color: #10b981;">
+                    <div class="text-muted small fw-bold">CERTIFICATES</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ user.certificates|length }}</div>
+                    <div class="small text-success"><i class="fa-solid fa-award me-1"></i> {{ score_data.certs }}% Score</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3 stat-card" style="border-left-color: #f59e0b;">
+                    <div class="text-muted small fw-bold">XP POINTS</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ total_points }}</div>
+                    <div class="small text-warning"><i class="fa-solid fa-star me-1"></i> Active XP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Bar -->
+        <div class="card border-0 shadow-sm p-3 mt-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold small text-muted text-uppercase">Profile Completion</span>
+                <span class="fw-bold text-primary">{{ profile_completion }}%</span>
+            </div>
+            <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ profile_completion }}%;"></div>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="small fw-bold text-muted me-2">Badges Unlocked:</span>
+                {% for b in user.badges %}
+                    <span class="badge-item" title="{{ b.description }}">
+                        <i class="fa-solid {{ b.icon }}"></i> {{ b.badge_name }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Tasks & Radar Chart -->
+<div class="row g-4 mb-4">
+    <!-- Today's Active Tasks -->
+    <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <span class="fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i> Today's Assigned Tasks</span>
+                <a href="{{ url_for('student_tasks') }}" class="btn btn-sm btn-link text-decoration-none">View Tasks</a>
+            </div>
+            <div class="card-body">
+                {% for t in tasks_cat.today %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="fw-bold mb-1">{{ t.title }}</h6>
+                            <span class="badge bg-primary-subtle text-primary border">{{ t.priority }}</span>
+                        </div>
+                        <p class="small text-muted mb-2">{{ t.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                            <span>Due: {{ t.due_date }}</span>
+                            <span class="fw-bold text-primary">Progress: {{ t.progress }}%</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted small">No tasks due today. Keep building your daily streak!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Dimensions Radar -->
+    <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 fw-bold py-3">
+                <i class="fa-solid fa-chart-radar text-primary me-2"></i> Skill Dimension Breakdown
+            </div>
+            <div class="card-body" style="position: relative; height: 260px;">
+                <canvas id="scoreBreakdownChart"
+                        data-courses="{{ score_data.courses }}"
+                        data-projects="{{ score_data.projects }}"
+                        data-assessments="{{ score_data.assessments }}"
+                        data-certs="{{ score_data.certs }}"
+                        data-mentor="{{ score_data.mentor }}"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

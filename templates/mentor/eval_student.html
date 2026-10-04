@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Evaluate {{ student.name }} - Mentor Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-user-check text-primary me-2"></i> Student Detail & Review: {{ student.name }}</h2>
+        <p class="text-muted mb-0">{{ student.profile.department }} | Target: <strong>{{ student.profile.career_goal }}</strong></p>
+    </div>
+    <a href="{{ url_for('mentor_dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- At-Risk Warning Alert Banner -->
+{% if at_risk_info.is_at_risk %}
+    <div class="alert alert-danger border-danger shadow-sm mb-4 rounded-4" role="alert">
+        <h5 class="alert-heading fw-bold mb-2"><i class="fa-solid fa-triangle-exclamation me-2"></i> Student At Risk Warning</h5>
+        <ul class="mb-0 ps-3">
+            {% for reason in at_risk_info.reasons %}
+                <li>{{ reason }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+    <!-- Student Profile & Score Overview -->
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-line text-primary me-2"></i> Data-Driven Skill Metrics</h5>
+            
+            <div class="p-3 bg-light rounded-3 mb-3 text-center border">
+                <div class="small text-muted text-uppercase fw-bold">Overall Skill Score</div>
+                <div class="display-5 fw-bold text-primary">{{ score_data.overall }}%</div>
+                <div class="small text-muted mt-1"><i class="fa-solid fa-fire text-danger me-1"></i> {{ streak_info.current_streak }} Day Activity Streak</div>
+            </div>
+
+            <div class="small text-muted mb-3">
+                <div class="d-flex justify-content-between py-1 border-bottom"><span>Courses Avg:</span> <strong>{{ score_data.courses }}%</strong></div>
+                <div class="d-flex justify-content-between py-1 border-bottom"><span>Projects Score:</span> <strong>{{ score_data.projects }}%</strong></div>
+                <div class="d-flex justify-content-between py-1 border-bottom"><span>Assessments Score:</span> <strong>{{ score_data.assessments }}%</strong></div>
+                <div class="d-flex justify-content-between py-1 border-bottom"><span>Certificates Score:</span> <strong>{{ score_data.certs }}%</strong></div>
+                <div class="d-flex justify-content-between py-1"><span>Mentor Score:</span> <strong>{{ score_data.mentor }}%</strong></div>
+            </div>
+
+            <!-- Recent Activity Timeline -->
+            <h6 class="fw-bold text-dark mb-2 border-top pt-3">Recent Activity Stream:</h6>
+            <div class="small text-muted mb-3" style="max-height: 200px; overflow-y: auto;">
+                {% for log in activity_timeline %}
+                    <div class="border-bottom py-2">
+                        <div class="fw-bold text-dark">{{ log.event_type }}</div>
+                        <div>{{ log.description }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                {% else %}
+                    <p>No activity logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Tasks & Review Interface -->
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-list-check text-primary me-2"></i> Assigned Tasks ({{ tasks|length }})</h5>
+            </div>
+
+            <div class="task-list">
+                {% for t in tasks %}
+                    <div class="p-3 border rounded-3 mb-3 bg-light">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong class="text-dark">{{ t.title }}</strong>
+                            <span class="badge {% if t.status == 'Completed' %}bg-success{% elif t.status == 'Submitted' %}bg-warning text-dark{% else %}bg-primary{% endif %}">{{ t.status }}</span>
+                        </div>
+                        <p class="small text-muted mb-2">{{ t.description }}</p>
+
+                        <!-- Task Submissions Review -->
+                        {% for sub in t.submissions %}
+                            <div class="p-2 bg-white rounded border my-2 small">
+                                <div class="fw-bold text-primary mb-1"><i class="fa-solid fa-paper-plane me-1"></i> Submission ({{ sub.submitted_at.strftime('%Y-%m-%d') }})</div>
+                                {% if sub.github_url %}<div><strong>GitHub:</strong> <a href="{{ sub.github_url }}" target="_blank">{{ sub.github_url }}</a></div>{% endif %}
+                                {% if sub.submission_url %}<div><strong>URL:</strong> <a href="{{ sub.submission_url }}" target="_blank">{{ sub.submission_url }}</a></div>{% endif %}
+                                {% if sub.text_response %}<div><strong>Response:</strong> "{{ sub.text_response }}"</div>{% endif %}
+
+                                {% if t.status == 'Submitted' %}
+                                    <form method="POST" action="{{ url_for('mentor_review_task', task_id=t.id) }}" class="mt-2 pt-2 border-top">
+                                        <div class="mb-2">
+                                            <input type="text" name="mentor_feedback" class="form-control form-control-sm" placeholder="Review feedback notes...">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm rounded-pill px-3">
+                                                <i class="fa-solid fa-check me-1"></i> Approve Task
+                                            </button>
+                                            <button type="submit" name="action" value="reject" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                <i class="fa-solid fa-xmark me-1"></i> Request Revision
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small">No tasks assigned to this student yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Submit Evaluation & Recommendation Form -->
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-pen-to-square text-success me-2"></i> Submit Overall Evaluation</h5>
+            <form method="POST" action="{{ url_for('mentor_eval', student_id=student.id) }}">
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Mentor Rating (1.0 to 5.0 Stars)</label>
+                    <select name="rating" class="form-select" required>
+                        <option value="5.0" selected>5.0 Stars (Exceptional Performance)</option>
+                        <option value="4.5">4.5 Stars (Very Good)</option>
+                        <option value="4.0">4.0 Stars (Good Progress)</option>
+                        <option value="3.5">3.5 Stars (Satisfactory)</option>
+                        <option value="3.0">3.0 Stars (Needs Improvement)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Evaluation Feedback</label>
+                    <textarea name="comments" class="form-control" rows="3" placeholder="Provide feedback on technical execution..." required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Recommended Learning Focus</label>
+                    <textarea name="recommendations" class="form-control" rows="2" placeholder="Recommend next topics or courses..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success rounded-pill px-4 font-weight-bold shadow-sm">
+                    <i class="fa-solid fa-paper-plane me-2"></i> Submit Evaluation
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Learning Platform Integrations - SkillTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-plug text-primary me-2"></i> Learning Platform Integrations</h2>
+        <p class="text-muted mb-0">Connect external education providers (Coursera, edX, Udemy) via secure OAuth APIs.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for platform, info in connections.items() %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0 text-dark">{{ platform }}</h4>
+                    {% if info.status == 'CONNECTED' %}
+                        <span class="badge bg-success"><i class="fa-solid fa-circle-check me-1"></i> Connected</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Disconnected</span>
+                    {% endif %}
+                </div>
+
+                <p class="small text-muted mb-3">
+                    Automatically synchronize enrolled course progress, completion items, and certificates via OAuth API.
+                </p>
+
+                <div class="small text-muted mb-4">
+                    <div><strong>API Config Status:</strong>
+                        {% if info.is_configured %}
+                            <span class="badge bg-success-subtle text-success border">Configured</span>
+                        {% else %}
+                            <span class="badge bg-warning-subtle text-warning-emphasis border">Fallback Mode</span>
+                        {% endif %}
+                    </div>
+                    {% if info.connected_at %}<div><strong>Connected On:</strong> {{ info.connected_at }}</div>{% endif %}
+                    {% if info.last_synced_at %}<div><strong>Last Synced:</strong> {{ info.last_synced_at }}</div>{% endif %}
+                </div>
+
+                <div class="mt-auto pt-2 d-flex gap-2">
+                    {% if info.status == 'CONNECTED' %}
+                        <form method="POST" action="{{ url_for('student_sync_integration', platform=platform) }}" class="w-100">
+                            <button type="submit" class="btn btn-primary rounded-pill w-100">
+                                <i class="fa-solid fa-rotate me-1"></i> Sync Progress
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('student_connect_integration', platform=platform) }}" class="w-100">
+                            <button type="submit" class="btn btn-outline-primary rounded-pill w-100">
+                                <i class="fa-solid fa-plug me-1"></i> Connect {{ platform }}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Security Architecture Notice -->
+<div class="card border-0 shadow-sm p-4 mt-4 bg-light">
+    <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-shield-halved text-primary me-2"></i> Integration Security Protocol</h6>
+    <ul class="small text-muted mb-0 ps-3">
+        <li>SkillTracker <strong>never</strong> prompts for or stores your Coursera, edX, or Udemy account passwords.</li>
+        <li>Integrations rely exclusively on official OAuth authorization flows.</li>
+        <li>Access tokens are encrypted at rest and never exposed to client-side scripts.</li>
+    </ul>
+</div>
+{% endblock %}
